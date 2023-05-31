@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import dayjs from "dayjs";
 import {
   FlatList,
   SafeAreaView,
@@ -7,73 +7,30 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import dayjs from "dayjs";
-import { getCalendarColumns, getDayColor, getDayText } from "./src/utils";
-import { SimpleLineIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-
-const columnsSize = 40;
-
-const Column = ({ text, color, opacity, disabled, onPress, isSelected }) => {
-  return (
-    <TouchableOpacity
-      style={{
-        width: columnsSize,
-        height: columnsSize,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: isSelected ? "#c2c2c2" : "transparent",
-        borderRadius: columnsSize / 2,
-      }}
-      disabled={disabled}
-      onPress={onPress}
-    >
-      <Text style={{ color: color, opacity: opacity }} onPress={() => {}}>
-        {text}
-      </Text>
-    </TouchableOpacity>
-  );
-};
-
-const ArrowButton = ({ name, onPress }) => {
-  return (
-    <TouchableOpacity style={{ padding: 16 }} onPress={onPress}>
-      <SimpleLineIcons name={name} size={16} color="black" />
-    </TouchableOpacity>
-  );
-};
+import ArrowButton from "./src/components/ArrowButton";
+import Column from "./src/components/Column";
+import { useCalendar } from "./src/hooks/use-calendar";
+import { getCalendarColumns, getDayColor, getDayText } from "./src/utils";
 
 export default function App() {
   const now = dayjs();
 
-  const [selectedDate, setSelectedDate] = useState(now);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const {
+    selectedDate,
+    setSelectedDate,
+    isDatePickerVisible,
+    showDatePicker,
+    hideDatePicker,
+    handleConfirm,
+    subtract1Month,
+    add1Month,
+  } = useCalendar(now);
 
   const columns = getCalendarColumns(selectedDate);
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    hideDatePicker();
-    setSelectedDate(dayjs(date));
-  };
-
-  const onPressLeftArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).subtract(1, "month");
-    setSelectedDate(newSelectedDate);
-  };
-
-  const onPressRightArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).add(1, "month");
-    setSelectedDate(newSelectedDate);
-  };
+  const onPressLeftArrow = subtract1Month;
+  const onPressRightArrow = add1Month;
 
   const ListHeaderComponent = () => {
     const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD.");
@@ -130,10 +87,6 @@ export default function App() {
       />
     );
   };
-
-  useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
 
   return (
     <SafeAreaView style={styles.container}>

@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { getCalendarColumns, getDayColor, getDayText } from "./src/utils";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const columnsSize = 40;
 
@@ -47,8 +48,32 @@ export default function App() {
   const now = dayjs();
 
   const [selectedDate, setSelectedDate] = useState(now);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const columns = getCalendarColumns(selectedDate);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    hideDatePicker();
+    setSelectedDate(dayjs(date));
+  };
+
+  const onPressLeftArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).subtract(1, "month");
+    setSelectedDate(newSelectedDate);
+  };
+
+  const onPressRightArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).add(1, "month");
+    setSelectedDate(newSelectedDate);
+  };
 
   const ListHeaderComponent = () => {
     const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD.");
@@ -61,13 +86,13 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <ArrowButton name="arrow-left" />
-          <TouchableOpacity>
+          <ArrowButton name="arrow-left" onPress={onPressLeftArrow} />
+          <TouchableOpacity onPress={showDatePicker}>
             <Text style={{ fontSize: 20, color: "#404040" }}>
               {currentDateText}
             </Text>
           </TouchableOpacity>
-          <ArrowButton name="arrow-right" />
+          <ArrowButton name="arrow-right" onPress={onPressRightArrow} />
         </View>
 
         <View style={{ flexDirection: "row" }}>
@@ -118,6 +143,12 @@ export default function App() {
         data={columns}
         renderItem={renderItem}
         numColumns={7}
+      />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
       />
     </SafeAreaView>
   );

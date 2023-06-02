@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {
+  Alert,
   FlatList,
   Image,
   Keyboard,
@@ -24,9 +25,11 @@ import {
   statusBarHeight,
 } from "./src/utils";
 import AddTodoInput from "./src/components/AddTodoInput";
+import { useRef } from "react";
 
 export default function App() {
   const now = dayjs();
+  const flatListRef = useRef(null);
 
   const {
     selectedDate,
@@ -39,7 +42,7 @@ export default function App() {
     add1Month,
   } = useCalendar(now);
 
-  const { todoList, addTodo, removeTodo, toggleTodo, input, setInput } =
+  const { filteredTodoList, addTodo, removeTodo, toggleTodo, input, setInput } =
     useTodoList(selectedDate);
 
   const columns = getCalendarColumns(selectedDate);
@@ -49,7 +52,21 @@ export default function App() {
   const onPressRightArrow = add1Month;
   const onPressDate = setSelectedDate;
 
-  const onPressAdd = () => {};
+  // const scrollToEnd = () => {
+  //   setTimeout(() => {
+  //     flatListRef.current?.scrollToEnd();
+  //   }, 300);
+  // };
+
+  const onPressAdd = () => {
+    addTodo();
+    setInput("");
+    // scrollToEnd();
+  };
+
+  const onFocus = () => {
+    // scrollToEnd();
+  };
 
   const ListHeaderComponent = () => {
     return (
@@ -79,8 +96,21 @@ export default function App() {
 
   const renderItem = ({ item: todo }) => {
     const isSuccess = todo.isSuccess;
+    const onPress = () => toggleTodo(todo.id);
+    const onLongPress = () => {
+      Alert.alert("삭제하시겠습니까?", null, [
+        {
+          style: "cancel",
+          text: "취소",
+        },
+        {
+          text: "삭제",
+          onPress: () => removeTodo(todo.id),
+        },
+      ]);
+    };
     return (
-      <View
+      <Pressable
         style={{
           flexDirection: "row",
           alignItems: "center",
@@ -91,6 +121,8 @@ export default function App() {
           borderBottomWidth: 0.3,
           borderBottomColor: "#292929",
         }}
+        onPress={onPress}
+        onLongPress={onLongPress}
       >
         <Text style={{ flex: 1, fontSize: 16, color: "black" }}>
           {todo.content}
@@ -101,7 +133,7 @@ export default function App() {
           size={ICON_SIZE}
           color={isSuccess ? "green" : "red"}
         />
-      </View>
+      </Pressable>
     );
   };
 
@@ -122,11 +154,13 @@ export default function App() {
       >
         <>
           <FlatList
-            keyExtractor={(_, idx) => idx}
-            data={todoList}
+            ref={flatListRef}
+            style={{ flex: 1 }}
+            data={filteredTodoList}
             renderItem={renderItem}
             ListHeaderComponent={ListHeaderComponent}
-            contentContainerStyle={{ paddingTop: statusBarHeight }}
+            contentContainerStyle={{ paddingTop: statusBarHeight + 16 }}
+            showsVerticalScrollIndicator={false}
           />
           <AddTodoInput
             value={input}
@@ -134,6 +168,8 @@ export default function App() {
               "M.D"
             )}에 할 일을 입력하세요.`}
             onChangeText={setInput}
+            onPressAdd={onPressAdd}
+            onFocus={onFocus}
           />
         </>
       </KeyboardAvoidingView>

@@ -70,7 +70,6 @@ export default ({
   };
   return (
     <FlatList
-      keyExtractor={(_, idx) => idx}
       ListHeaderComponent={ListHeaderComponent}
       data={columns}
       renderItem={renderItem}

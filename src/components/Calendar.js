@@ -7,12 +7,14 @@ import ArrowButton from "./ArrowButton";
 import Column from "./Column";
 
 export default ({
+  todoList,
   selectedDate,
   onPressLeftArrow,
   onPressHeaderDate,
   onPressRightArrow,
   onPressDate,
   columns,
+  hasTodo,
 }) => {
   const ListHeaderComponent = () => {
     const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD.");
@@ -57,6 +59,9 @@ export default ({
     const isCurrentMonth = dayjs(date).isSame(selectedDate, "month");
     const isSelected = dayjs(date).isSame(selectedDate, "date");
     const onPress = () => onPressDate(date);
+    const hasTodo = todoList.find((todo) =>
+      dayjs(todo.date).isSame(dayjs(date), "date")
+    );
 
     return (
       <Column
@@ -65,6 +70,7 @@ export default ({
         opacity={isCurrentMonth ? 1 : 0.4}
         isSelected={isSelected}
         onPress={onPress}
+        hasTodo={hasTodo}
       />
     );
   };

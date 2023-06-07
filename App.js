@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { useRef } from "react";
 
 import Calendar from "./src/components/Calendar";
 import { useCalendar } from "./src/hooks/use-calendar";
@@ -25,7 +26,6 @@ import {
   statusBarHeight,
 } from "./src/utils";
 import AddTodoInput from "./src/components/AddTodoInput";
-import { useRef } from "react";
 
 export default function App() {
   const now = dayjs();
@@ -42,8 +42,15 @@ export default function App() {
     add1Month,
   } = useCalendar(now);
 
-  const { filteredTodoList, addTodo, removeTodo, toggleTodo, input, setInput } =
-    useTodoList(selectedDate);
+  const {
+    todoList,
+    filteredTodoList,
+    addTodo,
+    removeTodo,
+    toggleTodo,
+    input,
+    setInput,
+  } = useTodoList(selectedDate);
 
   const columns = getCalendarColumns(selectedDate);
 
@@ -52,26 +59,28 @@ export default function App() {
   const onPressRightArrow = add1Month;
   const onPressDate = setSelectedDate;
 
-  // const scrollToEnd = () => {
-  //   setTimeout(() => {
-  //     flatListRef.current?.scrollToEnd();
-  //   }, 300);
-  // };
+  const moveToEnd = () => {
+    if (filteredTodoList.length > 0)
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 300);
+  };
 
   const onPressAdd = () => {
     addTodo();
     setInput("");
-    // scrollToEnd();
+    moveToEnd();
   };
 
   const onFocus = () => {
-    // scrollToEnd();
+    moveToEnd();
   };
 
   const ListHeaderComponent = () => {
     return (
       <View>
         <Calendar
+          todoList={todoList}
           selectedDate={selectedDate}
           onPressLeftArrow={onPressLeftArrow}
           onPressHeaderDate={onPressHeaderDate}

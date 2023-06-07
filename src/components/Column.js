@@ -2,7 +2,15 @@ import { Text, TouchableOpacity } from "react-native";
 
 const columnsSize = 40;
 
-export default ({ text, color, opacity, disabled, onPress, isSelected }) => {
+export default ({
+  text,
+  color,
+  opacity,
+  disabled,
+  onPress,
+  isSelected,
+  hasTodo,
+}) => {
   return (
     <TouchableOpacity
       style={{
@@ -16,7 +24,10 @@ export default ({ text, color, opacity, disabled, onPress, isSelected }) => {
       disabled={disabled}
       onPress={onPress}
     >
-      <Text style={{ color: color, opacity: opacity }} onPress={() => {}}>
+      <Text
+        style={{ color, opacity, fontWeight: hasTodo ? "bold" : "normal" }}
+        onPress={onPress}
+      >
         {text}
       </Text>
     </TouchableOpacity>
